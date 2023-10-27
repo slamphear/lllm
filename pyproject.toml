@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "lllm"
+version = "0.1.0"
+description = "Lamphear Large Language Model"
+authors = ["Steven Lamphear <slamphear@users.noreply.github.com>"]
+license = "MPL 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+torch = "^2.1.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.1"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
