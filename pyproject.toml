@@ -7,8 +7,10 @@ license = "MPL 2.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 torch = "^2.1.0"
+jupyter = "^1.0.0"
+numpy = "^1.26.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.10.1"
