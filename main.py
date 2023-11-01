@@ -22,7 +22,7 @@ def main():
 
     # 4. Train the model
     print("Training model...")
-    train_model(model, input_batches, target_batches)
+    train_model(model, vocab, input_batches, target_batches)
 
     # 5. Evaluate the model
     perplexity = evaluate(model, input_batches, target_batches, criterion=torch.nn.CrossEntropyLoss(), vocab_size=len(vocab))
