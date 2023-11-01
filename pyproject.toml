@@ -11,6 +11,8 @@ python = ">=3.11,<3.13"
 torch = "^2.1.0"
 jupyter = "^1.0.0"
 numpy = "^1.26.1"
+opendatasets = "^0.1.22"
+pandas = "^2.1.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.10.1"
