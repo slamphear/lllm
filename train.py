@@ -27,7 +27,6 @@ def create_batches(tokens, word_to_idx, batch_size, seq_length):
     input_data = torch.tensor(tokens).view(-1, seq_length)[:num_seq * batch_size]
     target_data = torch.tensor(tokens[1:] + [tokens[0]]).view(-1, seq_length)[:num_seq * batch_size]
 
-    
     # Create batches
     num_batches = len(input_data) // batch_size
     input_batches = input_data[:num_batches * batch_size].view(-1, batch_size, seq_length)
@@ -41,7 +40,10 @@ def train_model(model, vocab, input_batches, target_batches):
 
     # Training loop
     for epoch in range(num_epochs):
+        print(f'Starting epoch {epoch+1}/{num_epochs}:\nBatch ', end='')
         for i in range(input_batches.size(0)):
+            print(f'{i+1}/{input_batches.size(0)}...', end='')
+            
             # Zero gradients
             optimizer.zero_grad()
             
@@ -54,3 +56,5 @@ def train_model(model, vocab, input_batches, target_batches):
             # Backward pass and optimize
             loss.backward()
             optimizer.step()
+            
+        print(f'Finished epoch {epoch+1}/{num_epochs}.')
