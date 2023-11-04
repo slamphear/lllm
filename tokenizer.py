@@ -1,5 +1,6 @@
 from collections import Counter
 
+
 def tokenize_text(text):
     # Tokenize the text into words
     tokens = text.split()
