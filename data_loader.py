@@ -8,6 +8,6 @@ def load_sample_data() -> str:
 
     # Just grab the first 100 rows from the letter A for now
     df = pd.read_parquet("wikipedia-20230701/a.parquet")
-    sample_text = " ".join(df.head(100)["text"].values)
+    sample_text = " ".join(df.sample(n=200)["text"].values)
 
     return sample_text
