@@ -35,10 +35,21 @@ def create_batches(tokens, word_to_idx, batch_size, seq_length):
     return input_batches, target_batches
 
 
-def train_model(model, vocab, num_epochs, learning_rate, scheduler_patience, scheduler_factor, input_batches, target_batches):
+def train_model(
+    model,
+    vocab,
+    num_epochs,
+    learning_rate,
+    scheduler_patience,
+    scheduler_factor,
+    input_batches,
+    target_batches,
+):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    scheduler = ReduceLROnPlateau(optimizer, "min", patience=scheduler_patience, factor=scheduler_factor)
+    scheduler = ReduceLROnPlateau(
+        optimizer, "min", patience=scheduler_patience, factor=scheduler_factor
+    )
 
     # Training loop
     for epoch in range(num_epochs):
