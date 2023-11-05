@@ -7,9 +7,9 @@ import torch
 from data_loader import load_sample_data
 from evaluate import evaluate
 from inference import generate_text
-from model import SimpleLSTM
 from tokenizer import tokenize_text
 from train import create_batches, train_model
+from transformer_model import TransformerModel
 
 
 def get_hyperparameters():
@@ -20,10 +20,11 @@ def get_hyperparameters():
     number_of_samples = int(hyperparameters["number_of_samples"])
     batch_size = int(hyperparameters["batch_size"])
     seq_length = int(hyperparameters["seq_length"])
+    num_epochs = int(hyperparameters["num_epochs"])
     max_vocab_size = int(hyperparameters["max_vocab_size"])
     embedding_dim = int(hyperparameters["embedding_dim"])
-    hidden_dim = int(hyperparameters["hidden_dim"])
-    num_layers = int(hyperparameters["num_layers"])
+    ff_hidden_dim = int(hyperparameters["ff_hidden_dim"])
+    num_blocks = int(hyperparameters["num_blocks"])
     initial_text = hyperparameters["initial_text"]
     max_length = int(hyperparameters["max_length"])
     temperature = float(hyperparameters["temperature"])
@@ -32,10 +33,11 @@ def get_hyperparameters():
         number_of_samples,
         batch_size,
         seq_length,
+        num_epochs,
         max_vocab_size,
         embedding_dim,
-        hidden_dim,
-        num_layers,
+        ff_hidden_dim,
+        num_blocks,
         initial_text,
         max_length,
         temperature,
@@ -48,10 +50,11 @@ def main():
         number_of_samples,
         batch_size,
         seq_length,
+        num_epochs,
         max_vocab_size,
         embedding_dim,
-        hidden_dim,
-        num_layers,
+        ff_hidden_dim,
+        num_blocks,
         initial_text,
         max_length,
         temperature,
@@ -92,16 +95,16 @@ def main():
         model = torch.load(model_path)
     else:
         print("Initializing new model...")
-        model = SimpleLSTM(
+        model = TransformerModel(
             vocab_size=max_vocab_size,
             embedding_dim=embedding_dim,
-            hidden_dim=hidden_dim,
-            num_layers=num_layers,
+            ff_hidden_dim=ff_hidden_dim,
+            num_blocks=num_blocks,
         )
 
     # 5. Train the model
     print("Training model...")
-    train_model(model, vocab, input_batches, target_batches)
+    train_model(model, vocab, num_epochs, input_batches, target_batches)
 
     # Save the trained model
     print("Saving model...")

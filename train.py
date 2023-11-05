@@ -2,16 +2,7 @@ import torch
 import torch.optim as optim
 
 from data_loader import load_sample_data
-from model import SimpleLSTM
 from tokenizer import tokenize_text
-
-# Hyperparameters
-embedding_dim = 50
-hidden_dim = 128
-num_layers = 2
-batch_size = 64
-seq_length = 30
-num_epochs = 10
 
 
 # Create batches
@@ -43,7 +34,7 @@ def create_batches(tokens, word_to_idx, batch_size, seq_length):
     return input_batches, target_batches
 
 
-def train_model(model, vocab, input_batches, target_batches):
+def train_model(model, vocab, num_epochs, input_batches, target_batches):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
