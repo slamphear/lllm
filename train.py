@@ -1,5 +1,6 @@
 import torch
 import torch.optim as optim
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from data_loader import load_sample_data
 from tokenizer import tokenize_text
@@ -34,13 +35,16 @@ def create_batches(tokens, word_to_idx, batch_size, seq_length):
     return input_batches, target_batches
 
 
-def train_model(model, vocab, num_epochs, learning_rate, input_batches, target_batches):
+def train_model(model, vocab, num_epochs, learning_rate, scheduler_patience, scheduler_factor, input_batches, target_batches):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    scheduler = ReduceLROnPlateau(optimizer, "min", patience=scheduler_patience, factor=scheduler_factor)
 
     # Training loop
     for epoch in range(num_epochs):
         print(f"Starting epoch {epoch+1}/{num_epochs}:\nBatch ", end="")
+        epoch_loss = 0  # To keep track of loss in an epoch
+
         for i in range(input_batches.size(0)):
             print(f"{i+1}/{input_batches.size(0)}...", end="", flush=True)
 
@@ -57,4 +61,15 @@ def train_model(model, vocab, num_epochs, learning_rate, input_batches, target_b
             loss.backward()
             optimizer.step()
 
-        print(f"Finished epoch {epoch+1}/{num_epochs}.")
+            epoch_loss += loss.item()
+
+        # Compute average epoch loss
+        average_epoch_loss = epoch_loss / input_batches.size(0)
+
+        # Step the scheduler
+        scheduler.step(average_epoch_loss)
+
+        # Optionally: print loss and learning rate at each epoch
+        print(
+            f'Epoch {epoch+1}/{num_epochs}, Loss: {average_epoch_loss}, Learning rate: {optimizer.param_groups[0]["lr"]}'
+        )

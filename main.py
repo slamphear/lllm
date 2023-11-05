@@ -22,6 +22,8 @@ def get_hyperparameters():
     seq_length = int(hyperparameters["seq_length"])
     num_epochs = int(hyperparameters["num_epochs"])
     learning_rate = float(hyperparameters["learning_rate"])
+    scheduler_patience = int(hyperparameters["scheduler_patience"])
+    scheduler_factor = float(hyperparameters["scheduler_factor"])
     max_vocab_size = int(hyperparameters["max_vocab_size"])
     embedding_dim = int(hyperparameters["embedding_dim"])
     ff_hidden_dim = int(hyperparameters["ff_hidden_dim"])
@@ -36,6 +38,8 @@ def get_hyperparameters():
         seq_length,
         num_epochs,
         learning_rate,
+        scheduler_patience,
+        scheduler_factor,
         max_vocab_size,
         embedding_dim,
         ff_hidden_dim,
@@ -54,6 +58,8 @@ def main():
         seq_length,
         num_epochs,
         learning_rate,
+        scheduler_patience,
+        scheduler_factor,
         max_vocab_size,
         embedding_dim,
         ff_hidden_dim,
@@ -107,7 +113,7 @@ def main():
 
     # 5. Train the model
     print("Training model...")
-    train_model(model, vocab, num_epochs, learning_rate, input_batches, target_batches)
+    train_model(model, vocab, num_epochs, learning_rate, scheduler_patience, scheduler_factor, input_batches, target_batches)
 
     # Save the trained model
     print("Saving model...")
