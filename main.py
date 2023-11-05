@@ -21,6 +21,7 @@ def get_hyperparameters():
     batch_size = int(hyperparameters["batch_size"])
     seq_length = int(hyperparameters["seq_length"])
     num_epochs = int(hyperparameters["num_epochs"])
+    learning_rate = float(hyperparameters["learning_rate"])
     max_vocab_size = int(hyperparameters["max_vocab_size"])
     embedding_dim = int(hyperparameters["embedding_dim"])
     ff_hidden_dim = int(hyperparameters["ff_hidden_dim"])
@@ -34,6 +35,7 @@ def get_hyperparameters():
         batch_size,
         seq_length,
         num_epochs,
+        learning_rate,
         max_vocab_size,
         embedding_dim,
         ff_hidden_dim,
@@ -51,6 +53,7 @@ def main():
         batch_size,
         seq_length,
         num_epochs,
+        learning_rate,
         max_vocab_size,
         embedding_dim,
         ff_hidden_dim,
@@ -60,7 +63,7 @@ def main():
         temperature,
     ) = get_hyperparameters()
 
-    # 2. Load and tokenize data
+    # 2. Load and pre-process data
     print("Loading sample data...")
     sample_text = load_sample_data(number_of_samples=number_of_samples)
     vocab, word_to_idx, idx_to_word = tokenize_text(sample_text)
@@ -71,7 +74,7 @@ def main():
         word_freqs = Counter(tokens)
 
         # Get the most common words up to MAX_VOCAB_SIZE
-        vocab = [word for word, freq in word_freqs.most_common(max_vocab_size-1)]
+        vocab = [word for word, freq in word_freqs.most_common(max_vocab_size - 1)]
 
         # Add the special <UNK> token to the vocabulary
         vocab.append("<UNK>")
@@ -104,7 +107,7 @@ def main():
 
     # 5. Train the model
     print("Training model...")
-    train_model(model, vocab, num_epochs, input_batches, target_batches)
+    train_model(model, vocab, num_epochs, learning_rate, input_batches, target_batches)
 
     # Save the trained model
     print("Saving model...")

@@ -34,9 +34,9 @@ def create_batches(tokens, word_to_idx, batch_size, seq_length):
     return input_batches, target_batches
 
 
-def train_model(model, vocab, num_epochs, input_batches, target_batches):
+def train_model(model, vocab, num_epochs, learning_rate, input_batches, target_batches):
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Training loop
     for epoch in range(num_epochs):
