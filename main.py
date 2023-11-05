@@ -17,6 +17,7 @@ def get_hyperparameters():
     config.read("config.ini")
 
     hyperparameters = config["Hyperparameters"]
+    number_of_samples = int(hyperparameters["number_of_samples"])
     batch_size = int(hyperparameters["batch_size"])
     seq_length = int(hyperparameters["seq_length"])
     max_vocab_size = int(hyperparameters["max_vocab_size"])
@@ -28,6 +29,7 @@ def get_hyperparameters():
     temperature = float(hyperparameters["temperature"])
 
     return (
+        number_of_samples,
         batch_size,
         seq_length,
         max_vocab_size,
@@ -43,6 +45,7 @@ def get_hyperparameters():
 def main():
     # 1. Load hyperparameters
     (
+        number_of_samples,
         batch_size,
         seq_length,
         max_vocab_size,
@@ -56,7 +59,7 @@ def main():
 
     # 2. Load and tokenize data
     print("Loading sample data...")
-    sample_text = load_sample_data()
+    sample_text = load_sample_data(number_of_samples=number_of_samples)
     vocab, word_to_idx, idx_to_word = tokenize_text(sample_text)
     tokens = sample_text.split()
 
