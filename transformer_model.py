@@ -4,16 +4,21 @@ from transformer_block import TransformerBlock
 
 
 class TransformerModel(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, ff_hidden_dim, num_blocks):
+    def __init__(
+        self, vocab_size, embedding_size, num_heads, num_blocks, ff_hidden_factor
+    ):
         super(TransformerModel, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.embedding = nn.Embedding(vocab_size, embedding_size, num_heads)
 
         # Stack multiple transformer blocks
         self.transformer_blocks = nn.ModuleList(
-            [TransformerBlock(embedding_dim, ff_hidden_dim) for _ in range(num_blocks)]
+            [
+                TransformerBlock(embedding_size, num_heads, ff_hidden_factor)
+                for _ in range(num_blocks)
+            ]
         )
 
-        self.output_layer = nn.Linear(embedding_dim, vocab_size)
+        self.output_layer = nn.Linear(embedding_size, vocab_size)
 
     def forward(self, x):
         # x is of shape (batch_size, seq_length)

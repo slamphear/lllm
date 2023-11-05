@@ -25,8 +25,9 @@ def get_hyperparameters():
     scheduler_patience = int(hyperparameters["scheduler_patience"])
     scheduler_factor = float(hyperparameters["scheduler_factor"])
     max_vocab_size = int(hyperparameters["max_vocab_size"])
-    embedding_dim = int(hyperparameters["embedding_dim"])
-    ff_hidden_dim = int(hyperparameters["ff_hidden_dim"])
+    embedding_size = int(hyperparameters["embedding_size"])
+    num_heads = int(hyperparameters["num_heads"])
+    ff_hidden_factor = int(hyperparameters["ff_hidden_factor"])
     num_blocks = int(hyperparameters["num_blocks"])
     initial_text = hyperparameters["initial_text"]
     max_length = int(hyperparameters["max_length"])
@@ -41,8 +42,9 @@ def get_hyperparameters():
         scheduler_patience,
         scheduler_factor,
         max_vocab_size,
-        embedding_dim,
-        ff_hidden_dim,
+        embedding_size,
+        num_heads,
+        ff_hidden_factor,
         num_blocks,
         initial_text,
         max_length,
@@ -61,8 +63,9 @@ def main():
         scheduler_patience,
         scheduler_factor,
         max_vocab_size,
-        embedding_dim,
-        ff_hidden_dim,
+        embedding_size,
+        num_heads,
+        ff_hidden_factor,
         num_blocks,
         initial_text,
         max_length,
@@ -106,9 +109,10 @@ def main():
         print("Initializing new model...")
         model = TransformerModel(
             vocab_size=max_vocab_size,
-            embedding_dim=embedding_dim,
-            ff_hidden_dim=ff_hidden_dim,
+            embedding_size=embedding_size,
+            num_heads=num_heads,
             num_blocks=num_blocks,
+            ff_hidden_factor=ff_hidden_factor,
         )
 
     # 5. Train the model

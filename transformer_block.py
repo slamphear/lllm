@@ -1,19 +1,19 @@
 import torch.nn as nn
 
-from attention import SingleHeadAttention
+from attention import MultiHeadSelfAttention
 
 
 class TransformerBlock(nn.Module):
-    def __init__(self, embedding_dim, ff_hidden_dim):
+    def __init__(self, embedding_size, num_heads, ff_hidden_factor):
         super(TransformerBlock, self).__init__()
-        self.attention = SingleHeadAttention(embedding_dim)
+        self.attention = MultiHeadSelfAttention(embedding_size, num_heads)
         self.feedforward = nn.Sequential(
-            nn.Linear(embedding_dim, ff_hidden_dim),
+            nn.Linear(embedding_size, ff_hidden_factor * embedding_size),
             nn.ReLU(),
-            nn.Linear(ff_hidden_dim, embedding_dim),
+            nn.Linear(ff_hidden_factor * embedding_size, embedding_size),
         )
-        self.norm1 = nn.LayerNorm(embedding_dim)
-        self.norm2 = nn.LayerNorm(embedding_dim)
+        self.norm1 = nn.LayerNorm(embedding_size)
+        self.norm2 = nn.LayerNorm(embedding_size)
 
     def forward(self, x):
         # Apply attention
