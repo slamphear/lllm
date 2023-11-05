@@ -1,6 +1,16 @@
 import torch
 
 
+def generate_square_subsequent_mask(sz):
+    mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+    mask = (
+        mask.float()
+        .masked_fill(mask == 0, float("-inf"))
+        .masked_fill(mask == 1, float(0.0))
+    )
+    return mask
+
+
 def generate_text(
     model, idx_to_word, word_to_idx, initial_text="the", max_length=100, temperature=1.0
 ):
@@ -15,8 +25,10 @@ def generate_text(
 
     with torch.no_grad():
         for _ in range(max_length):
+            mask = generate_square_subsequent_mask(len(input_sequence))
+
             # Forward pass
-            output = model(input_sequence)
+            output = model(input_sequence, mask)
 
             # Get the last predicted token
             last_output = output[0, -1, :]

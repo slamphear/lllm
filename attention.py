@@ -3,48 +3,59 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class MultiHeadSelfAttention(nn.Module):
+class MultiHeadAttention(nn.Module):
     def __init__(self, embedding_size, num_heads):
-        super(MultiHeadSelfAttention, self).__init__()
-        assert (
-            embedding_size % num_heads == 0
-        ), "Embedding size must be divisible by number of heads"
+        super(MultiHeadAttention, self).__init__()
+        assert embedding_size % num_heads == 0
 
         self.embedding_size = embedding_size
         self.num_heads = num_heads
         self.head_dim = embedding_size // num_heads
 
-        # Define weight matrices for Q, K, V for each head
-        self.Wq = nn.Linear(self.head_dim, self.head_dim, bias=False)
-        self.Wk = nn.Linear(self.head_dim, self.head_dim, bias=False)
-        self.Wv = nn.Linear(self.head_dim, self.head_dim, bias=False)
+        # Define the linear transformations for Q, K, and V
+        self.q_linear = nn.Linear(embedding_size, embedding_size)
+        self.k_linear = nn.Linear(embedding_size, embedding_size)
+        self.v_linear = nn.Linear(embedding_size, embedding_size)
 
-        # Linear layer to transform concatenated outputs
+        # Linear transformation for the output
         self.fc_out = nn.Linear(embedding_size, embedding_size)
 
-    def forward(self, query, key, value):
-        batch_size = query.shape[0]
-        seq_length = query.shape[1]
+        self.scale = torch.sqrt(torch.FloatTensor([self.head_dim])).item()
 
-        # Split embedding into heads
-        query = query.view(batch_size, seq_length, self.num_heads, self.head_dim)
-        key = key.view(batch_size, seq_length, self.num_heads, self.head_dim)
-        value = value.view(batch_size, seq_length, self.num_heads, self.head_dim)
+    def forward(self, query, key, value, mask=None):
+        N = query.shape[0]  # Batch size
+        Q = self.q_linear(query)
+        K = self.k_linear(key)
+        V = self.v_linear(value)
 
-        # Apply linear layers
-        query = self.Wq(query)
-        key = self.Wk(key)
-        value = self.Wv(value)
+        # Split embedding_size into num_heads different pieces
+        Q = Q.view(N, -1, self.num_heads, self.head_dim)
+        K = K.view(N, -1, self.num_heads, self.head_dim)
+        V = V.view(N, -1, self.num_heads, self.head_dim)
 
-        # Scaled dot-product attention
-        scaled_dot_product = torch.einsum("ijkl,ijml->ijkm", [query, key]) / (
-            self.head_dim**0.5
-        )
-        attention_weights = F.softmax(scaled_dot_product, dim=-1)
-        output = torch.einsum("ijkm,ijlm->ijkl", [attention_weights, value])
+        # Transpose for attention computation
+        Q = Q.transpose(1, 2)
+        K = K.transpose(1, 2)
+        V = V.transpose(1, 2)
 
-        # Concatenate and transform
-        output = output.view(batch_size, seq_length, -1)
-        output = self.fc_out(output)
+        # Calculate attention scores
+        attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / self.scale
+
+        # Apply mask if provided
+        if mask is not None:
+            attn_scores = attn_scores.masked_fill(mask == 0, -1e10)
+
+        # Apply softmax to get attention weights
+        attn_weights = torch.softmax(attn_scores, dim=-1)
+
+        # Calculate the new value vectors
+        weighted = torch.matmul(attn_weights, V)
+
+        # Reshape and concatenate heads
+        weighted = weighted.transpose(1, 2).contiguous()
+        concat = weighted.view(N, -1, self.embedding_size)
+
+        # Pass through the final linear layer
+        output = self.fc_out(concat)
 
         return output

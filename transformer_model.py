@@ -20,13 +20,13 @@ class TransformerModel(nn.Module):
 
         self.output_layer = nn.Linear(embedding_size, vocab_size)
 
-    def forward(self, x):
+    def forward(self, x, mask=None):
         # x is of shape (batch_size, seq_length)
         x = self.embedding(x)
 
         # Pass through each transformer block
         for block in self.transformer_blocks:
-            x = block(x)
+            x = block(x, mask)
 
         # Output layer
         logits = self.output_layer(x)

@@ -1,12 +1,12 @@
 import torch.nn as nn
 
-from attention import MultiHeadSelfAttention
+from attention import MultiHeadAttention
 
 
 class TransformerBlock(nn.Module):
     def __init__(self, embedding_size, num_heads, ff_hidden_factor):
         super(TransformerBlock, self).__init__()
-        self.attention = MultiHeadSelfAttention(embedding_size, num_heads)
+        self.attention = MultiHeadAttention(embedding_size, num_heads)
         self.feedforward = nn.Sequential(
             nn.Linear(embedding_size, ff_hidden_factor * embedding_size),
             nn.ReLU(),
@@ -15,9 +15,9 @@ class TransformerBlock(nn.Module):
         self.norm1 = nn.LayerNorm(embedding_size)
         self.norm2 = nn.LayerNorm(embedding_size)
 
-    def forward(self, x):
+    def forward(self, x, mask=None):
         # Apply attention
-        attention_out = self.attention(x)
+        attention_out = self.attention(x, x, x, mask)
         x = self.norm1(x + attention_out)
 
         # Apply feedforward network
