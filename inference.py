@@ -12,7 +12,7 @@ def generate_square_subsequent_mask(sz):
 
 
 def generate_text(
-    model, idx_to_word, word_to_idx, initial_text="the", max_length=100, temperature=1.0
+    model, idx_to_word, word_to_idx, initial_text="the", max_len=100, temperature=1.0
 ):
     model.eval()  # Set the model to evaluation mode
 
@@ -24,7 +24,7 @@ def generate_text(
     generated_text = tokens.copy()
 
     with torch.no_grad():
-        for _ in range(max_length):
+        for _ in range(max_len):
             mask = generate_square_subsequent_mask(len(input_sequence))
 
             # Forward pass

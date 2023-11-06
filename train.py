@@ -7,29 +7,29 @@ from tokenizer import tokenize_text
 
 
 # Create batches
-def create_batches(tokens, word_to_idx, batch_size, seq_length):
-    # Convert tokens to integers
-    tokens = [word_to_idx[word] for word in tokens]
+def create_batches(token_indices, batch_size, seq_length):
+    # Calculate the total number of full sequences we can make
+    num_seq = len(token_indices) // seq_length
 
-    # Number of sequences in a batch
-    num_seq = len(tokens) // seq_length
+    # Trim the list of token indices to fit evenly into full sequences
+    token_indices = token_indices[: num_seq * seq_length]
 
-    # Trim tokens to make it fit evenly into batches
-    tokens = tokens[: num_seq * seq_length]
+    # Convert the list of token indices into a tensor and reshape it into sequences
+    tensor_data = torch.tensor(token_indices).view(-1, seq_length)
 
-    # Create input and target sequences
-    input_data = torch.tensor(tokens).view(-1, seq_length)[: num_seq * batch_size]
-    target_data = torch.tensor(tokens[1:] + [tokens[0]]).view(-1, seq_length)[
-        : num_seq * batch_size
-    ]
+    # The input data is all sequences except the last one for each sequence
+    input_data = tensor_data[:-1]
 
-    # Create batches
+    # The target data is all sequences except the first one, shifted by one token forward
+    target_data = tensor_data[1:]
+
+    # Create batches from input and target data
     num_batches = len(input_data) // batch_size
     input_batches = input_data[: num_batches * batch_size].view(
-        -1, batch_size, seq_length
+        num_batches, batch_size, seq_length
     )
     target_batches = target_data[: num_batches * batch_size].view(
-        -1, batch_size, seq_length
+        num_batches, batch_size, seq_length
     )
 
     return input_batches, target_batches

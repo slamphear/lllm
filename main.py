@@ -7,6 +7,7 @@ import torch
 from data_loader import load_sample_data
 from evaluate import evaluate
 from inference import generate_text
+from prepare_data import prepare_data
 from tokenizer import tokenize_text
 from train import create_batches, train_model
 from transformer_model import TransformerModel
@@ -17,7 +18,8 @@ def get_hyperparameters():
     config.read("config.ini")
 
     hyperparameters = config["Hyperparameters"]
-    number_of_samples = int(hyperparameters["number_of_samples"])
+    num_samples = int(hyperparameters["num_samples"])
+    max_sample_length = int(hyperparameters["max_sample_length"])
     batch_size = int(hyperparameters["batch_size"])
     seq_length = int(hyperparameters["seq_length"])
     num_epochs = int(hyperparameters["num_epochs"])
@@ -30,11 +32,12 @@ def get_hyperparameters():
     ff_hidden_factor = int(hyperparameters["ff_hidden_factor"])
     num_blocks = int(hyperparameters["num_blocks"])
     initial_text = hyperparameters["initial_text"]
-    max_length = int(hyperparameters["max_length"])
+    max_len = int(hyperparameters["max_len"])
     temperature = float(hyperparameters["temperature"])
 
     return (
-        number_of_samples,
+        num_samples,
+        max_sample_length,
         batch_size,
         seq_length,
         num_epochs,
@@ -47,7 +50,7 @@ def get_hyperparameters():
         ff_hidden_factor,
         num_blocks,
         initial_text,
-        max_length,
+        max_len,
         temperature,
     )
 
@@ -55,7 +58,8 @@ def get_hyperparameters():
 def main():
     # 1. Load hyperparameters
     (
-        number_of_samples,
+        num_samples,
+        max_sample_length,
         batch_size,
         seq_length,
         num_epochs,
@@ -68,37 +72,50 @@ def main():
         ff_hidden_factor,
         num_blocks,
         initial_text,
-        max_length,
+        max_len,
         temperature,
     ) = get_hyperparameters()
 
     # 2. Load and pre-process data
     print("Loading sample data...")
-    sample_text = load_sample_data(number_of_samples=number_of_samples)
-    vocab, word_to_idx, idx_to_word = tokenize_text(sample_text)
-    tokens = sample_text.split()
+    sample_texts = load_sample_data(num_samples=num_samples)
+
+    # Tokenize and build vocab
+    vocab, word_to_idx, idx_to_word = tokenize_text(sample_texts)
+
+    # Tokenize and build vocab
+    tokens = [token for text in sample_texts for token in text.split()]
 
     if len(tokens) > max_vocab_size:
         # Count the frequency of each word in your corpus
         word_freqs = Counter(tokens)
 
         # Get the most common words up to MAX_VOCAB_SIZE
-        vocab = [word for word, freq in word_freqs.most_common(max_vocab_size - 1)]
+        # (Subtract 2 from max_vocab_size for <UNK> and <PAD>)
+        vocab = [word for word, freq in word_freqs.most_common(max_vocab_size - 2)]
 
-        # Add the special <UNK> token to the vocabulary
-        vocab.append("<UNK>")
-
-        # Create word_to_idx dictionary
+        # Add special tokens to vocab and word_to_idx
+        vocab.extend(["<UNK>", "<PAD>"])
         word_to_idx = {word: idx for idx, word in enumerate(vocab)}
 
         # Replace all words not in the vocabulary with <UNK>
         tokens = [word if word in word_to_idx else "<UNK>" for word in tokens]
 
-    # 3. Create batches
-    print("Creating batches...")
-    input_batches, target_batches = create_batches(
-        tokens, word_to_idx, batch_size=batch_size, seq_length=seq_length
+    # Prepare data: Truncate and pad sequences
+    prepared_data = prepare_data(
+        sample_texts, word_to_idx, max_sample_length=max_sample_length
     )
+
+    # 3. Create batches
+    if len(prepared_data) < batch_size * seq_length:
+        print(
+            f"Not enough data to create a batch. Data length: {len(prepared_data)} Batch size * Seq length: {batch_size * seq_length}"
+        )
+    else:
+        print("Creating batches...")
+        input_batches, target_batches = create_batches(
+            prepared_data, batch_size, seq_length
+        )
 
     # 4. Initialize or load model
     model_path = "model.pth"
@@ -113,6 +130,7 @@ def main():
             num_heads=num_heads,
             num_blocks=num_blocks,
             ff_hidden_factor=ff_hidden_factor,
+            max_len=max_len,
         )
 
     # 5. Train the model
@@ -148,7 +166,7 @@ def main():
         idx_to_word,
         word_to_idx,
         initial_text=initial_text,
-        max_length=max_length,
+        max_len=max_len,
         temperature=temperature,
     )
     print(f"Generated Text: {generated_text}")

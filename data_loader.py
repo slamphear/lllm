@@ -2,12 +2,12 @@ import opendatasets as od
 import pandas as pd
 
 
-def load_sample_data(number_of_samples: int) -> str:
+def load_sample_data(num_samples: int) -> list:
     dataset_url = "https://www.kaggle.com/datasets/jjinho/wikipedia-20230701"
     od.download(dataset_url)
 
-    # Just grab the first 100 rows from the letter A for now
+    # Just sample num_samples rows from the letter A for now
     df = pd.read_parquet("wikipedia-20230701/a.parquet")
-    sample_text = " ".join(df.sample(n=number_of_samples)["text"].values)
+    sampled_texts = df.sample(n=num_samples)["text"].tolist()
 
-    return sample_text
+    return sampled_texts

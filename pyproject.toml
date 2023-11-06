@@ -14,6 +14,7 @@ numpy = "^1.26.1"
 opendatasets = "^0.1.22"
 pandas = "^2.1.2"
 configparser = "^6.0.0"
+pyarrow = "^14.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.10.1"

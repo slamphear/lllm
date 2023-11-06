@@ -1,12 +1,17 @@
 from collections import Counter
 
 
-def tokenize_text(text):
-    # Tokenize the text into words
-    tokens = text.split()
+def tokenize_text(sample_texts):
+    # Initialize a list to store all tokens
+    all_tokens = []
+
+    # Tokenize each text separately and extend the all_tokens list
+    for text in sample_texts:
+        tokens = text.split()
+        all_tokens.extend(tokens)
 
     # Count the occurrences of each token
-    token_counts = Counter(tokens)
+    token_counts = Counter(all_tokens)
 
     # Create a vocabulary by sorting the unique tokens
     vocab = sorted(token_counts, key=token_counts.get, reverse=True)
