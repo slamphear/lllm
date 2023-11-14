@@ -2,8 +2,7 @@ import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from data_loader import load_sample_data
-from tokenizer import tokenize_text
+from Data.tokenizer import tokenize_text
 
 
 # Create batches

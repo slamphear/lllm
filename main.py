@@ -4,13 +4,13 @@ from configparser import ConfigParser
 
 import torch
 
-from data_loader import load_sample_data
-from evaluate import evaluate
-from inference import generate_text
-from prepare_data import prepare_data
-from tokenizer import tokenize_text
-from train import create_batches, train_model
-from transformer_model import TransformerModel
+from Data.data_loader import load_sample_data
+from Data.prepare_data import prepare_data
+from Data.tokenizer import tokenize_text
+from Model.evaluate import evaluate
+from Model.inference import generate_text
+from Model.train import create_batches, train_model
+from Model.transformer_model import TransformerModel
 
 
 def get_hyperparameters():

@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from attention import MultiHeadAttention
+from .attention import MultiHeadAttention
 
 
 class TransformerBlock(nn.Module):
